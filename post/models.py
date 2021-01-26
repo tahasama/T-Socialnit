@@ -21,7 +21,7 @@ class Post(models.Model):
         return f"post by {self.user}"
     
     def get_absolute_url(self):
-        return reverse('post:post_detail', args=[self.user.id,self.id])
+        return reverse('post:post_detail', args=[self.id])
 
 
 

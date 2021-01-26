@@ -15,30 +15,27 @@
 
 
         <div class="p-4">
-          <a class="text-decoration-none text-dark" href="{% url 'post:wall' post.user.id %}">
-            <h3 class="card-img-top ">{{ post.user }}and{{ post.id }}</h3>
+          <a class="text-decoration-none text-dark" href="{% url 'post:wall' user.id %}">
+            <h3 class="card-img-top ">{{ post.user }}</h3>
           </a>
         </div>
 
-     <span class="total">{{users_like.count}}</span> <br>
-          <a href="" data-id="{{ post.id }}" data-action="{% if request.user in users_like %}un{% endif%}like">
-            {% if request.user not in users_like %}
-              Like
-            {% else %}
-              Unlike
-            {% endif %}
-          </a>
-          <a href="{%url 'post:post_detail' post.user.id post.id %}?like">Like this</a>
-          <a href="{%url 'post:post_detail' post.user.id post.id%}?unlike">Unlikeike this</a>
-            {% if users_like %}
-              {%for liker in users_like|slice:'2' %}
-                {{liker.username}}
-                {% if not forloop.last %},{% endif %}
-              {%endfor%}
-              {% if likes.count > 1 %}
-                ,and {{likes.count|add:-1}} other{{likes.count|add:-1|pluralize}} likes this post
-              {% endif %}
-            {% endif %}
+        <br>
+ 
+        {% if request.user not in users_like %}
+        <a href="{{get_absolute_url}}?like">Like </a>
+        {% else %}
+        <a href="{{get_absolute_url}}?unlike">Unlike</a>
+        {% endif %}
+        {% if users_like.count > 1 %}
+        {%for liker in users_like|slice:'2' %}
+        {{liker.username}}
+        {% if not forloop.last %},{% endif %}
+        {%endfor%}
+        {% if likes.count > 1 %}
+        ,and {{likes.count|add:-1}} other{{likes.count|add:-1|pluralize}} likes this post
+        {% endif %}
+        {% endif %}
 
         </h3>
         {%if post.text%}
@@ -143,33 +140,4 @@
   </div>
 </div>
 
-{% endblock %}
-
-
-{% block domready %}
-  $('a.like').click(function(e){
-    e.preventDefault();
-    $.post('{% url "post:like" %}',
-      {
-        id: $(this).data('id'),
-        action: $(this).data('action')
-      },
-      function(data){
-        if (data['status'] == 'ok')
-        {
-          var previous_action = $('a.like').data('action');
-
-          // toggle data-action
-          $('a.like').data('action', previous_action == 'like' ? 'unlike' : 'like');
-          // toggle link text
-          $('a.like').text(previous_action == 'like' ? 'Unlike' :'Like');
-
-          // update total likes
-          var previous_likes = parseInt($('span.count .total').text());
-          $('span.count .total').text(previous_action == 'like' ?
-          previous_likes + 1 : previous_likes - 1);
-        }
-      }
-    );
-  });
 {% endblock %}

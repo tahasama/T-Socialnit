@@ -83,10 +83,10 @@ def post_list(request, user_id=None):
     return render(request, 'post/list.html', {'posts': posts})
 
 
-def post_detail(request, post_id=None, user_id=None):
-
+def post_detail(request, post_id=None):
+    post = None
     post = get_object_or_404(Post, id=post_id)
-    print(post)
+    #print(post)
     comments = Comment.objects.filter(post=post)
 
     users_like = post.users_like.all()
@@ -94,7 +94,7 @@ def post_detail(request, post_id=None, user_id=None):
 
     if "like" in request.GET:
         x = post.users_like.add(request.user)
-        print(x)
+        #print(x)
     
     if "unlike" in request.GET:
         post.users_like.remove(request.user)
@@ -107,12 +107,30 @@ def post_detail(request, post_id=None, user_id=None):
             comments.post = post
             comments.commenter = request.user
             comments.save()
-            print(comments.id)
+            #print(comments.id)
             return redirect('post:post_detail', post.user.id, post.id)
     else:
         form = CommentForm()
     return render(request, 'post/detail.html', {'post': post, 'form': form, 'comments': comments, 'users_like': users_like})
 
+@login_required
+@require_POST
+def like(request):
+    post_id = request.POST.get('id')
+    print(post_id)
+    action = request.POST.get('action')
+    print(action)
+    if  post_id and action:
+        try:
+            post = Post.objects.get(id=post_id)
+            if action == 'like':
+                post.users_like.add(request.user)
+            else:
+                post.users_like.remove(request.user)
+                return JsonResponse({'status':'ok'})
+        except:
+            pass
+    return JsonResponse({'status':'error'})
 
 def update_comment(request, post_id, comment_id):
     post = get_object_or_404(Post, id=post_id)
@@ -203,21 +221,3 @@ def register(request):
 #         return render(request,'blog/search.html',{'query': query,'results': results})
 
 
-# @ login_required
-# def like(request):
-#     if request.POST.get('action') == 'post':
-#         result = ''
-#         id = int(request.POST.get('postid'))
-#         post = get_object_or_404(Post, id=id)
-#         if post.likes.filter(id=request.user.id).exists():
-#             post.likes.remove(request.user)
-#             post.like_count -= 1
-#             result = post.like_count
-#             post.save()
-#         else:
-#             post.likes.add(request.user)
-#             post.like_count += 1
-#             result = post.like_count
-#             post.save()
-
-#         return JsonResponse({'result': result, })

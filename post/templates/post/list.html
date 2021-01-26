@@ -49,7 +49,7 @@
       <div class="card mb-2" style="border-color: transparent; background: #dfdff1">
 
         <div class="p-4">
-          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+          <a class="text-decoration-none text-dark" href="{% url 'post:wall' user.id %}">
             <h3 class="card-img-top ">{{ post.user }}</h3>
           </a>
         </div>
