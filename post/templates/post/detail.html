@@ -1,0 +1,175 @@
+{% extends "post/base.html" %}
+{% load static %}
+{% load embed_video_tags %}
+{% load widget_tweaks %}
+
+
+{% block title %}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-9 mx-auto col-md-6 col-lg-12">
+      <div class="card mb-2" style="border-color: transparent; background: #dfdff1">
+
+
+
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{% url 'post:wall' post.user.id %}">
+            <h3 class="card-img-top ">{{ post.user }}and{{ post.id }}</h3>
+          </a>
+        </div>
+
+     <span class="total">{{users_like.count}}</span> <br>
+          <a href="" data-id="{{ post.id }}" data-action="{% if request.user in users_like %}un{% endif%}like">
+            {% if request.user not in users_like %}
+              Like
+            {% else %}
+              Unlike
+            {% endif %}
+          </a>
+          <a href="{%url 'post:post_detail' post.user.id post.id %}?like">Like this</a>
+          <a href="{%url 'post:post_detail' post.user.id post.id%}?unlike">Unlikeike this</a>
+            {% if users_like %}
+              {%for liker in users_like|slice:'2' %}
+                {{liker.username}}
+                {% if not forloop.last %},{% endif %}
+              {%endfor%}
+              {% if likes.count > 1 %}
+                ,and {{likes.count|add:-1}} other{{likes.count|add:-1|pluralize}} likes this post
+              {% endif %}
+            {% endif %}
+
+        </h3>
+        {%if post.text%}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <h3 class="card-img-top" width='600'>{{ post.text }}</h3>
+          </a>
+        </div>
+        {% endif %}
+        {%if post.image%}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <h1 class="card-img-top "> <img width='600' src="{{ post.image.url }}" alt=""> </h1>
+          </a>
+        </div>
+        {% endif %}
+        {%if post.video and not post.url %}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <video width='600' controls>
+              <source src='{{ post.video.url }}' type='video/mp4'>
+            </video>
+          </a>
+        </div>
+        {% endif %}
+        {%if post.url and not post.video%}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+
+            {% video post.url '600x400' %}
+
+          </a>
+        </div>
+        {% endif %}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <h3 class="card-img-top ">{{ post.created }}</h3>
+          </a>
+        </div>
+
+
+        {%if post.user == request.user%}
+        <h6><a href="" class="text-decoration-none">&nbsp;&nbsp;<i class="fas fa-edit"></i>update post</a>&nbsp;&nbsp;
+          <a href="" class="text-decoration-none"><i class="fas fa-trash-alt"></i>delete post</a>
+        </h6>
+        {% endif %}
+
+
+        {% if user.is_authenticated %}
+
+        <h4>&nbsp; Add a new comment :</h4>
+
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fa fa-comment text-dark mt-4 mb-4"></i></span>
+                </div>
+                {% render_field form.content rows="" class="form-control" placeholder="write your comment" %}
+              </div>
+            </div>
+            <br>
+            <div class="form-group">
+              <button type="submit" class="btn btn-success" style="width: 100px;">Post</button>
+            </div>
+          </form>
+        </div>
+
+
+        {% if comments %}
+        <h5>&nbsp; Comments :</h5>
+        {% for comment in comments %}
+
+        <h6 class="font-weight-bold mb-0 text-secondary" style="margin-left: 20px;">
+
+          <p class="date">
+            <i> {{ comment.created }} by <u>{{ comment.commenter }}</u></i>
+          </p>
+        </h6>
+        {%if comment.commenter == request.user%}
+        <h6 id="comment"><a href="{{comment.get_absolute_url}}/update_comment " class="text-decoration-none  "><i
+              class="fas fa-edit pt-2"></i> </a>&nbsp;&nbsp;
+          <a href="{{comment.get_absolute_url}}/delete_comment" class="text-decoration-none"><i
+              class="fas fa-trash-alt"></i> </a>
+        </h6>
+
+        <h5 class="text-dark  mb-0 pt-1 mb-2" style="margin-left: 20px;">
+          <i> <span class="mr-1"></span> {{ comment.content }}</i>
+        </h5>
+
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        {% endif %}
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block domready %}
+  $('a.like').click(function(e){
+    e.preventDefault();
+    $.post('{% url "post:like" %}',
+      {
+        id: $(this).data('id'),
+        action: $(this).data('action')
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = $('a.like').data('action');
+
+          // toggle data-action
+          $('a.like').data('action', previous_action == 'like' ? 'unlike' : 'like');
+          // toggle link text
+          $('a.like').text(previous_action == 'like' ? 'Unlike' :'Like');
+
+          // update total likes
+          var previous_likes = parseInt($('span.count .total').text());
+          $('span.count .total').text(previous_action == 'like' ?
+          previous_likes + 1 : previous_likes - 1);
+        }
+      }
+    );
+  });
+{% endblock %}

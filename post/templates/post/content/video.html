@@ -1,0 +1,66 @@
+
+
+{% extends 'post/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+{% block title %}
+CONTACT
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+  <div class="row justify-content mt-3" >
+    <div class="col-12 col-md-12 col-lg-10 pb-4">
+      <!-- {% for error_field, error_message in form.errors.items %}
+        <i> <p class="text-danger pr-5"> *{{ error_message|striptags }}</p></i>
+      {% endfor %} -->
+      <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+        
+          <div class="card border rounded-0">
+            <div class="card-body p-3" style="background: #ecdff1">
+      
+
+              <div class="form-group">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                  </div>
+                  {% render_field form.text class="form-control" placeholder="add a description ?"  %}
+                </div>
+              </div>
+<h4>Upload your video</h4>
+              <div class="form-group">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                  </div>
+                 {% render_field form.video placeholder="Upload your video"%}
+                
+                </div>
+              </div>
+<h4>or add a link </h4>
+              <div class="form-group" style="padding-left:25px;">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                  </div>
+                  {% render_field form.url  class="form-control" placeholder="or add a link"  %}
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="d-grid gap-2">
+            <input type="submit" value="share" class="btn btn-secondary">
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %} 

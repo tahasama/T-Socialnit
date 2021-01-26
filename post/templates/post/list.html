@@ -1,0 +1,123 @@
+{% extends "post/base.html" %}
+{% load static %}
+{% load embed_video_tags %}
+
+
+{% block title %}My Blog{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+
+{% for message in messages %}
+<div class="alert alert-info text-center" role="alert">
+  <li>{{ message }}</li>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if user.is_authenticated %}
+
+<h3>Welcome {{user.username}} </h3>
+
+
+
+
+<div class="p-4">
+  <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?text">
+    <button type="button" class="btn btn-primary btn-lg">say something <i class="fas fa-sign-in-alt"></i></button>
+  </a>
+</div>
+<div class="p-4">
+  <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?image">
+    <button type="button" class="btn btn-primary btn-lg">add image<i class="fas fa-sign-in-alt"></i></button>
+  </a>
+</div>
+<div class="p-4">
+  <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?video">
+    <button type="button" class="btn btn-primary btn-lg">add vid <i class="fas fa-sign-in-alt"></i></button>
+  </a>
+</div>
+
+{% endif %}
+
+
+{% for post in posts %}
+<div class="container">
+  <div class="row">
+    <div class="col-9 mx-auto col-md-6 col-lg-12">
+      <div class="card mb-2" style="border-color: transparent; background: #dfdff1">
+
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <h3 class="card-img-top ">{{ post.user }}</h3>
+          </a>
+        </div>
+        {%if post.text%}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <h3 class="card-img-top" width='600'>{{ post.text }}</h3>
+          </a>
+        </div>
+        {% endif %}
+        {%if post.image%}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <h1 class="card-img-top "> <img width='600'  src="{{ post.image.url }}" alt=""> </h1>
+          </a>
+        </div>
+        {% endif %}
+        {%if post.video and not post.url %}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}"> 
+            <video width='600' controls  >
+              <source src='{{ post.video.url }}' type='video/mp4'>           
+            </video>
+          </a>
+        </div>
+        {% endif %}
+        {%if post.url and not post.video%}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+
+             {% video post.url '600x400' %}
+
+          </a>
+        </div>
+        {% endif %}
+        <div class="p-4">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <h3 class="card-img-top ">{{ post.created }}</h3>
+          </a>
+        </div>
+
+        <h6>&nbsp; Comments: {{post.comments.count}}</h6>
+        <a href="{{post.get_absolute_url}}"><h6>add a comment</h6></a>
+        {%for c in post.comments.all|slice:'2' %}
+
+        <h6 class="font-weight-bold mb-0 text-secondary" style="margin-left: 20px;" >
+                          
+          <p class="date">
+           <i> {{ c.created }} by <u>{{ c.commenter }}</u></i>
+          </p>
+        </h6>
+        <h6 id="comment"><a  href="{{c.get_absolute_url}}/update_comment " class="text-decoration-none  "><i class="fas fa-edit pt-2"></i> </a>&nbsp;&nbsp;
+          <a href="{{c.get_absolute_url}}/delete_comment" class="text-decoration-none"><i class="fas fa-trash-alt"></i> </a></h6>
+
+        <h5 class="text-dark  mb-0 pt-1 mb-2" style="margin-left: 20px;">
+          <i> <span class="mr-1"></span> {{ c.content }}</i></h5>
+       
+        {% endfor %}        
+        <a href="{{post.get_absolute_url}}"><h6>view all comment</h6></a>
+        {%if post.user == request.user%}
+        <h6><a href="{{comment.get_absolute_url}}" class="text-decoration-none">&nbsp;&nbsp;<i class="fas fa-edit"></i>update post</a>&nbsp;&nbsp;
+          <a href="{{comment.get_absolute_url}}" class="text-decoration-none"><i class="fas fa-trash-alt"></i>delete post</a>
+        </h6>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}
