@@ -23,18 +23,18 @@
         <br>
  
         {% if request.user not in users_like %}
-        <a href="{{get_absolute_url}}?like">Like </a>
+          <a href="{{get_absolute_url}}?like">Like </a>
         {% else %}
-        <a href="{{get_absolute_url}}?unlike">Unlike</a>
+          <a href="{{get_absolute_url}}?unlike">Unlike</a>
         {% endif %}
         {% if users_like.count > 1 %}
-        {%for liker in users_like|slice:'2' %}
-        {{liker.username}}
-        {% if not forloop.last %},{% endif %}
-        {%endfor%}
-        {% if likes.count > 1 %}
-        ,and {{likes.count|add:-1}} other{{likes.count|add:-1|pluralize}} likes this post
-        {% endif %}
+          {%for liker in users_like|slice:'2' %}
+            {{liker.username}}
+            {% if not forloop.last %},{% endif %}
+          {%endfor%}
+          {% if likes.count > 1 %}
+            ,and {{likes.count|add:-1}} other{{likes.count|add:-1|pluralize}} likes this post
+          {% endif %}
         {% endif %}
 
         </h3>

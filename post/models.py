@@ -5,6 +5,8 @@ from django.shortcuts import redirect, reverse
 
 
 
+
+
 class Post(models.Model):
     user = models.ForeignKey(User, related_name='post_created', on_delete=models.CASCADE)
     url = models.URLField(blank=True, null=True)
@@ -40,5 +42,4 @@ class Comment(models.Model):
 
     def get_absolute_url(self):
         return reverse('post:comment',args=[self.post.id, self.id])
-
 

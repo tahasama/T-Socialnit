@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Comment
+from .models import Friend, Post, Comment
 
 # from django.contrib.auth.admin import UserAdmin
 # from django.contrib.auth.models import User
@@ -41,3 +41,4 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ('created', 'updated')
     search_fields = ('commenter', 'body')
 
+admin.site.register(Friend)

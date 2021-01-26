@@ -22,6 +22,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.contrib import messages
+
 
 
 @login_required
@@ -45,30 +47,28 @@ def create_post(request):
     if "video" in request.GET:
         return render(request, 'post/content/video.html', {'posts': posts, 'form': form})
 
-# def update_post(request,post_slug):
-#     post = Post.objects.get(slug=post_slug)
-#     users_in_group = Group.objects.get(name="writer").user_set.all()
-#     if request.method == 'POST' and  request.user in users_in_group and post.author == request.user:
-#         form = PostForm(request.POST, instance=post)
-#         if form.is_valid():
+def update_post(request,post_slug):
+    post = Post.objects.get(slug=post_slug)
+    users_in_group = Group.objects.get(name="writer").user_set.all()
+    if request.method == 'POST' and  request.user in users_in_group and post.author == request.user:
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
 
 
-#             post.published = False
-#             post.save()
-#             messages.success(request, 'Post has been updated, and will be published after revsion')
+            post.published = False
+            post.save()
+            messages.success(request, 'Post has been updated')
 
-#         return redirect('blog:post_list_author')
-#     else:
-#         form = PostForm(instance=post)
-#     return render(request,'blog/create.html',{'post': post,'form':form})
+        return redirect('post:wall')
+    else:
+        form = PostForm(instance=post)
+    return render(request,'poste/create.html',{'post': post,'form':form})
 
-# def delete_post(request,post_slug):
-#     users_in_group = Group.objects.get(name="writer").user_set.all()
-#     if request.method == 'POST'and  request.user in users_in_group:
-#         post = Post.objects.get(slug=post_slug)
-#         post.delete()
-#         messages.success(request, 'Post has been updated, and will be published after revsion')
-#     return redirect('blog:post_list_author')
+def delete_post(request,post_slug):
+    post = Post.objects.get(slug=post_slug)
+    post.delete()
+    messages.success(request, 'Post has been deleted')
+    return redirect('post:wall')
 
 
 def post_list(request, user_id=None):
@@ -113,24 +113,6 @@ def post_detail(request, post_id=None):
         form = CommentForm()
     return render(request, 'post/detail.html', {'post': post, 'form': form, 'comments': comments, 'users_like': users_like})
 
-@login_required
-@require_POST
-def like(request):
-    post_id = request.POST.get('id')
-    print(post_id)
-    action = request.POST.get('action')
-    print(action)
-    if  post_id and action:
-        try:
-            post = Post.objects.get(id=post_id)
-            if action == 'like':
-                post.users_like.add(request.user)
-            else:
-                post.users_like.remove(request.user)
-                return JsonResponse({'status':'ok'})
-        except:
-            pass
-    return JsonResponse({'status':'error'})
 
 def update_comment(request, post_id, comment_id):
     post = get_object_or_404(Post, id=post_id)
@@ -160,15 +142,7 @@ def register(request):
         if form.is_valid():
             form.save()
             cd = form.cleaned_data
-            #register_user = User.objects.get(username=cd['username'])
-            # if 'writer' in request.GET:
-            #     customer_group = Group.objects.get(name='writer')
-            #     customer_group.user_set.add(register_user)
-            # else:
-            # customer_group = Group.objects.get(name='reader')
-            # customer_group.user_set.add(register_user)
-            user = authenticate(
-                username=cd['username'], password=cd['password1'])
+            user = authenticate(username=cd['username'], password=cd['password1'])
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('post:home')
     else:
@@ -219,5 +193,4 @@ def register(request):
 #                     rank=SearchRank(search_vector, search_query)).filter(
 #                                         search=search_query).order_by('-rank')
 #         return render(request,'blog/search.html',{'query': query,'results': results})
-
 

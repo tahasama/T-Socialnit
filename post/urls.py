@@ -14,7 +14,6 @@ urlpatterns = [
     # path('category/<slug:category_slug>/', views.post_list, name='post_list_by_category'),
     # path('tag/<slug:tag_slug>/', views.post_list, name='post_list_by_tag'),
     
-    path('like/', views.like,name='like'),
     path('create/', views.create_post, name='create_post'),
 
     
