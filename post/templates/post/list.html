@@ -49,10 +49,26 @@
       <div class="card mb-2" style="border-color: transparent; background: #dfdff1">
 
         <div class="p-4">
-          <a class="text-decoration-none text-dark" href="{% url 'post:wall' user.id %}">
+          <a class="text-decoration-none text-dark" href="{% url 'post:wall' post.user.id %}">
             <h3 class="card-img-top ">{{ post.user }}</h3>
           </a>
         </div>
+
+        {% if request.post.user not in post.users_like.all %}
+          <a href="{{get_absolute_url}}?like">Like </a>
+        {% else %}
+          <a href="{{get_absolute_url}}?unlike">Unlike</a>
+        {% endif %}
+        {% if users_like.count > 1 %}
+          {%for liker in users_like|slice:'2' %}
+            {{liker.username}}
+            {% if not forloop.last %},{% endif %}
+          {%endfor%}
+          {% if likes.count > 1 %}
+            ,and {{likes.count|add:-1}} other{{likes.count|add:-1|pluralize}} likes this post
+          {% endif %}
+        {% endif %}
+
         {%if post.text%}
         <div class="p-4">
           <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">

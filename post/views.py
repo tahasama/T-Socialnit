@@ -1,7 +1,8 @@
+from django.dispatch.dispatcher import receiver
 from django.shortcuts import redirect, render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 
-from .models import Post, Comment
+from .models import Post, Comment, Profile, Relationship
 
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import authenticate, login
@@ -23,6 +24,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
+
+from django.db.models import Q
 
 
 
@@ -78,8 +81,7 @@ def post_list(request, user_id=None):
     if user_id:
         user = User.objects.get(id=user_id)
         posts = Post.objects.filter(user=user).order_by('-created')
-        print(posts.values())
-
+        #print(posts.values())
     return render(request, 'post/list.html', {'posts': posts})
 
 
@@ -92,9 +94,9 @@ def post_detail(request, post_id=None):
     users_like = post.users_like.all()
     #print(users_like)
 
-    if "like" in request.GET:
-        x = post.users_like.add(request.user)
-        #print(x)
+    if "like" in request.GET : 
+        post.users_like.add(request.user)
+
     
     if "unlike" in request.GET:
         post.users_like.remove(request.user)
@@ -108,7 +110,7 @@ def post_detail(request, post_id=None):
             comments.commenter = request.user
             comments.save()
             #print(comments.id)
-            return redirect('post:post_detail', post.user.id, post.id)
+            return redirect('post:post_detail', post.id)
     else:
         form = CommentForm()
     return render(request, 'post/detail.html', {'post': post, 'form': form, 'comments': comments, 'users_like': users_like})
@@ -122,7 +124,7 @@ def update_comment(request, post_id, comment_id):
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             form.save()
-        return redirect('post:post_detail', post.user.id, post.id)
+        return redirect('post:post_detail', post.id)
     else:
         form = CommentForm(instance=comment)
     return render(request, 'post/detail.html', {'form': form, 'comment': comment, 'post': post})
@@ -131,9 +133,8 @@ def update_comment(request, post_id, comment_id):
 def delete_comment(request, post_id, comment_id):
     post = get_object_or_404(Post, id=post_id)
     comment = get_object_or_404(Comment, post=post, id=comment_id)
-
     comment.delete()
-    return redirect('post:post_detail', post.user.id, post.id)
+    return redirect('post:post_detail', post.id)
 
 
 def register(request):
@@ -194,3 +195,74 @@ def register(request):
 #                                         search=search_query).order_by('-rank')
 #         return render(request,'blog/search.html',{'query': query,'results': results})
 
+def profile(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    all_profiles = Profile.objects.all().exclude(user=profile.user)
+    profiles = profile.get_all_friends()
+    rel_r = Relationship.objects.filter(sender=profile)
+    rel_s = Relationship.objects.filter(receiver=profile)
+    rel_receiver = []
+    rel_sender = []
+    for r in rel_r:
+        rel_receiver.append(r.receiver.user)
+ 
+    for s in rel_s:
+        rel_sender.append(s.sender.user)
+    nb_invitation = len(rel_sender)
+    print(nb_invitation)
+    print(rel_sender)
+    print(rel_receiver)
+    print(rel_receiver)
+    print(rel_r)
+    return render(request,'users/profile.html',{
+        'profile':profile,'profiles':profiles,'all_profiles':all_profiles,
+        'rel_sender':rel_sender,'rel_receiver':rel_receiver,'nb_invitation':nb_invitation})
+
+    
+@login_required
+def send_invitation(request):
+    if request.method=='POST':
+        id = request.POST.get('profile_id')
+        user = request.user
+        sender = Profile.objects.get(user=user)
+        receiver = Profile.objects.get(id=id)
+        rel = Relationship.objects.create(sender=sender, receiver=receiver, status='send')
+        return redirect(request.META.get('HTTP_REFERER'))  # to stay on the same page
+    return redirect('post:profile')
+
+@login_required
+def reject(request):
+    if request.method=="POST":
+        id = request.POST.get('profile_id')
+        receiver = Profile.objects.get(user=request.user)
+        sender = Profile.objects.get(id=id)
+        rel = get_object_or_404(Relationship, sender=sender, receiver=receiver)
+        rel.delete()
+    return redirect('post:profile')
+
+@login_required
+def accept(request):
+    if request.method=="POST":
+        id = request.POST.get('profile_id')
+        sender = Profile.objects.get(id=id)
+        receiver = Profile.objects.get(user=request.user)
+        rel = get_object_or_404(Relationship, sender=sender, receiver=receiver)
+        if rel.status == 'send':
+            rel.status = 'accepted'
+            rel.save()
+    return redirect('post:profile')
+
+@login_required
+def unfriend(request):
+    if request.method=='POST':
+        id = request.POST.get('profile_id')
+        user = request.user
+        sender = Profile.objects.get(user=user)
+        receiver = Profile.objects.get(id=id)
+
+        rel = Relationship.objects.get(
+            (Q(sender=sender) & Q(receiver=receiver)) | (Q(sender=receiver) & Q(receiver=sender))
+        )
+        rel.delete()
+        return redirect(request.META.get('HTTP_REFERER'))
+    return redirect('post:profiles')

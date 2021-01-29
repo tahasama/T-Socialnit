@@ -1,7 +1,9 @@
 from django.contrib import admin
-from .models import Friend, Post, Comment
+from .models import Post, Comment, Profile, Relationship
 
-# from django.contrib.auth.admin import UserAdmin
+admin.site.register(Profile)
+admin.site.register(Relationship)
+#  from django.contrib.auth.admin import UserAdmin
 # from django.contrib.auth.models import User
 
 # from nested_inline.admin import NestedStackedInline, NestedModelAdmin
@@ -41,4 +43,3 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ('created', 'updated')
     search_fields = ('commenter', 'body')
 
-admin.site.register(Friend)

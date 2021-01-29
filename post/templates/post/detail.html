@@ -21,7 +21,9 @@
         </div>
 
         <br>
- 
+        {{post.users_like.count}}
+        {{request.user}}
+        {{users_like}}
         {% if request.user not in users_like %}
           <a href="{{get_absolute_url}}?like">Like </a>
         {% else %}
@@ -78,9 +80,8 @@
 
 
         {%if post.user == request.user%}
-        <h6><a href="" class="text-decoration-none">&nbsp;&nbsp;<i class="fas fa-edit"></i>update post</a>&nbsp;&nbsp;
-          <a href="" class="text-decoration-none"><i class="fas fa-trash-alt"></i>delete post</a>
-        </h6>
+        <h6 id="comment"><a  href="{{comment.get_absolute_url}}/update_comment " class="text-decoration-none  "><i class="fas fa-edit pt-2"></i> </a>&nbsp;&nbsp;
+          <a href="{{comment.get_absolute_url}}/delete_comment" class="text-decoration-none"><i class="fas fa-trash-alt"></i> </a></h6>
         {% endif %}
 
 
