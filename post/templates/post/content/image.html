@@ -12,7 +12,7 @@ CONTACT
 
 <div class="container">
   <div class="row justify-content mt-3" >
-    <div class="col-12 col-md-12 col-lg-10 pb-4">
+    <div class="col-12 col-md-8 col-lg-10 pb-4">
       <!-- {% for error_field, error_message in form.errors.items %}
         <i> <p class="text-danger pr-5"> *{{ error_message|striptags }}</p></i>
       {% endfor %} -->
@@ -26,7 +26,7 @@ CONTACT
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
                   </div>
-                  {% render_field form.text class="form-control" placeholder="add a description ?"  %}
+                  {% render_field form.text class="form-control" rows="3" placeholder="add a description ?"  %}
                 </div>
               </div>
 

@@ -43,7 +43,12 @@ CONTACT
                     {%endif%}
                     <br>
                     {% if profile.user in rel_receiver and request.user not in profile.friends.all %}
-                            <button type="submit">waiting approuval</button>
+                            waiting approuval
+                            <form action="{% url 'post:cancel' %}" method="post">
+                                {%csrf_token%}
+                                <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
+                                    <button type="submit">cancel</button>                        
+                            </form>
                             {%endif%}
                     {% if profile.user in rel_sender and request.user not in profile.friends.all %}
                     <form action="{% url 'post:accept' %}" method="post">

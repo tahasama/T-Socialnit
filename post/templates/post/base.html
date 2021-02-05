@@ -13,7 +13,7 @@
   <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous"> -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css"
     integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
-  <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+  <link rel="stylesheet" href="{% static 'css/post.css' %}">
   <link rel="shortcut icon" type="image/png" href="" />
   <link rel="shortcut icon" type="image/png" href="{% static 'image/logo.png' %}" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -24,26 +24,22 @@
 
 </head>
 
-<body>
-  {% if not request.user.is_authenticated %}
+<body class="body">
+  <nav class="navbar navbar-expand-md navbar-light ">
+    <a href="{% url 'post:home' %}" class="navbar-brand text-danger"><i class="fas fa-share-alt-square fa-2x" style="color: #87a6fa"></i></a>
 
-  <li class="nav-item">
-    <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'login' %}">
-      Log In <i class="fas fa-user-plus"></i>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'registration'%}">
-      Register <i class="fas fa-sign-in-alt"></i>
-    </a>
-  </li>
-  {% else %}
-  <li><a class="dropdown-item " id="hovhov" href="{% url 'logout' %}"> <i class="fas fa-sign-out-alt"></i> Log Out</a>
-  </li>
-  <li><a class="dropdown-item " id="hovhov" href="{% url 'post:wall' user.id%}"> <i class="fas fa-sign-out-alt"></i>my
-      wall</a></li>
-  {% endif %}
+      <a class="nav-link text-light  font-weight-bold p-1" href="{% url 'post:home' %}"><h4> The Socialnit</h4></a>
 
+    <form class="form-inline ml-3" action="{% url 'post:search' %}", method="GET">
+      <div class="input-group" id="searchz">
+        <input type="text" name="name" class="form-control" placeholder="Search">
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-none" ><i class="fas fa-search" style="color: #abd8dd"></i></button>
+        </div>
+      </div>
+    </form>
+    
+  </nav>
 
   {% block content %}
   {% endblock %}

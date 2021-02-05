@@ -23,10 +23,10 @@ class UserCreationEmailForm(UserCreationForm):
         model = User
         fields = ('username','email','first_name','last_name',)
 
-# class UserEditForm(forms.ModelForm):
-#     class Meta:
-#         model = User
-#         fields = ('username','first_name', 'last_name', 'email')
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('username','first_name', 'last_name', 'email')
 
 # class ContactForm(forms.Form):
 #     subject = forms.CharField(max_length=50, required=True)

@@ -8,8 +8,8 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth import authenticate, login
 
 
-# ContactForm, SearchForm, UserEditForm
-from .forms import UserCreationEmailForm, PostForm, CommentForm
+# ContactForm, SearchForm
+from .forms import UserCreationEmailForm, PostForm, CommentForm, UserEditForm
 # from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 
@@ -50,39 +50,66 @@ def create_post(request):
     if "video" in request.GET:
         return render(request, 'post/content/video.html', {'posts': posts, 'form': form})
 
-def update_post(request,post_slug):
-    post = Post.objects.get(slug=post_slug)
-    users_in_group = Group.objects.get(name="writer").user_set.all()
-    if request.method == 'POST' and  request.user in users_in_group and post.author == request.user:
-        form = PostForm(request.POST, instance=post)
+def update_post(request,post_id):
+    post = Post.objects.get(id=post_id)
+    if request.method == 'POST' and post.author == request.user:
+        form = PostForm(request.POST,files=request.FILES, instance=post)
         if form.is_valid():
-
-
-            post.published = False
             post.save()
             messages.success(request, 'Post has been updated')
 
         return redirect('post:wall')
     else:
         form = PostForm(instance=post)
-    return render(request,'poste/create.html',{'post': post,'form':form})
+    if "text" in request.GET:
+        return render(request, 'post/content/text.html', {'posts': post, 'form': form})
+    if "image" in request.GET:
+        return render(request, 'post/content/image.html', {'posts': post, 'form': form})
+    if "video" in request.GET:
+        return render(request, 'post/content/video.html', {'posts': post, 'form': form})
 
-def delete_post(request,post_slug):
-    post = Post.objects.get(slug=post_slug)
+def delete_post(request,post_id):
+    post = Post.objects.get(id=post_id)
     post.delete()
     messages.success(request, 'Post has been deleted')
-    return redirect('post:wall')
+    return redirect('post:home')
 
 
 def post_list(request, user_id=None):
-    posts = Post.objects.all().order_by('-created')
+    profile = get_object_or_404(Profile, user=request.user)
+    friends = profile.friends.all()
+    posts = Post.objects.filter(Q(user__in=friends) | Q(user=request.user))
     # print(posts.values())
 
     if user_id:
         user = User.objects.get(id=user_id)
         posts = Post.objects.filter(user=user).order_by('-created')
         #print(posts.values())
-    return render(request, 'post/list.html', {'posts': posts})
+ 
+   
+    all_profiles = Profile.objects.all().exclude(user=profile.user)
+    profiles = profile.get_all_friends()
+    rel_r = Relationship.objects.filter(sender=profile)
+    rel_s = Relationship.objects.filter(receiver=profile)
+    rel_receiver = []
+    rel_sender = []
+    for r in rel_r:
+        rel_receiver.append(r.receiver.user)
+ 
+    for s in rel_s:
+        rel_sender.append(s.sender.user)
+   
+    nb_invitation = len(rel_sender)
+
+    # print(nb_invitation)
+    # print(rel_sender)
+    # print(rel_receiver)
+    # print(rel_s)
+    # print(rel_r)
+    return render(request,'post/list.html',{
+        'profile':profile,'profiles':profiles,'all_profiles':all_profiles,'posts': posts,
+        'rel_sender':rel_sender,'rel_receiver':rel_receiver,'nb_invitation':nb_invitation})
+
 
 
 def post_detail(request, post_id=None):
@@ -96,10 +123,12 @@ def post_detail(request, post_id=None):
 
     if "like" in request.GET : 
         post.users_like.add(request.user)
+        return redirect(request.META.get('HTTP_REFERER'))
 
     
     if "unlike" in request.GET:
         post.users_like.remove(request.user)
+        return redirect(request.META.get('HTTP_REFERER'))
 
     if request.method == 'POST' and request.user.is_authenticated:
 
@@ -150,73 +179,22 @@ def register(request):
         form = UserCreationEmailForm()
     return render(request, 'users/registration.html', {'form': form})
 
-# @login_required
-# def edit(request):
-#     if request.method == 'POST':
-#         form = UserEditForm(instance=request.user, data=request.POST)
-#         if form.is_valid():
-#             form.save()
-#         return redirect('home')
-#     else:
-#         form = UserEditForm(instance=request.user)
-#     return render(request,'bloggers/edit.html',{'form': form})
+@login_required
+def edit(request):
+    if request.method == 'POST':
+        form = UserEditForm(instance=request.user, data=request.POST, files=request.FILES)
+        if form.is_valid():
+            form.save()
+        return redirect('home')
+    else:
+        form = UserEditForm(instance=request.user)
+    return render(request,'bloggers/edit.html',{'form': form})
 
-# def contact(request):
-#     if request.method == 'POST':
-#         form = ContactForm(request.POST)
-#         if form.is_valid():
-#             subject = form.cleaned_data.get('subject')
-#             from_email = form.cleaned_data.get('from_email')
-#             message = form.cleaned_data.get('message')
-#             name = form.cleaned_data.get('name')
 
-#             message_format = f"client :{name} \n\n with e-mail: {from_email} has sent you a new message:\n\n{message}"
-#             msg = EmailMessage(
-#                 subject,
-#                 message_format,
-#                 to=['serertei@gmail.com'],
-#                 from_email=from_email
-#             )
-#             msg.send()
-#             return render(request, 'blog/contact_success.html')
-#     else:
-#         form = ContactForm()
-#     return render(request, 'blog/contact.html', {'form': form})
-
-# def search(request):
-#     query = None
-#     results = []
-#     if request.method == "GET":
-#         query = request.GET.get("query")
-#         search_vector = SearchVector('user')
-#         search_query = SearchQuery(query)
-#         results = Post.objects.annotate(search=search_vector,
-#                     rank=SearchRank(search_vector, search_query)).filter(
-#                                         search=search_query).order_by('-rank')
-#         return render(request,'blog/search.html',{'query': query,'results': results})
-
-def profile(request):
-    profile = get_object_or_404(Profile, user=request.user)
-    all_profiles = Profile.objects.all().exclude(user=profile.user)
-    profiles = profile.get_all_friends()
-    rel_r = Relationship.objects.filter(sender=profile)
-    rel_s = Relationship.objects.filter(receiver=profile)
-    rel_receiver = []
-    rel_sender = []
-    for r in rel_r:
-        rel_receiver.append(r.receiver.user)
- 
-    for s in rel_s:
-        rel_sender.append(s.sender.user)
-    nb_invitation = len(rel_sender)
-    print(nb_invitation)
-    print(rel_sender)
-    print(rel_receiver)
-    print(rel_receiver)
-    print(rel_r)
-    return render(request,'users/profile.html',{
-        'profile':profile,'profiles':profiles,'all_profiles':all_profiles,
-        'rel_sender':rel_sender,'rel_receiver':rel_receiver,'nb_invitation':nb_invitation})
+def search(request):
+    user = User.objects.filter(username__contains=request.GET['name'])
+    print
+    return render(request, 'post/search.html', {'user': user})
 
     
 @login_required
@@ -228,7 +206,17 @@ def send_invitation(request):
         receiver = Profile.objects.get(id=id)
         rel = Relationship.objects.create(sender=sender, receiver=receiver, status='send')
         return redirect(request.META.get('HTTP_REFERER'))  # to stay on the same page
-    return redirect('post:profile')
+    return redirect('post:home')
+
+@login_required
+def cancel(request):
+    if request.method=="POST":
+        id = request.POST.get('profile_id')
+        sender = Profile.objects.get(user=request.user)
+        receiver = Profile.objects.get(id=id)
+        rel = get_object_or_404(Relationship, sender=sender, receiver=receiver)
+        rel.delete()
+    return redirect('post:home')
 
 @login_required
 def reject(request):
@@ -238,7 +226,7 @@ def reject(request):
         sender = Profile.objects.get(id=id)
         rel = get_object_or_404(Relationship, sender=sender, receiver=receiver)
         rel.delete()
-    return redirect('post:profile')
+    return redirect('post:home')
 
 @login_required
 def accept(request):
@@ -249,8 +237,10 @@ def accept(request):
         rel = get_object_or_404(Relationship, sender=sender, receiver=receiver)
         if rel.status == 'send':
             rel.status = 'accepted'
+            sender.friends.add(receiver.user)
+            receiver.friends.add(sender.user)
             rel.save()
-    return redirect('post:profile')
+    return redirect('post:home')
 
 @login_required
 def unfriend(request):
@@ -263,6 +253,8 @@ def unfriend(request):
         rel = Relationship.objects.get(
             (Q(sender=sender) & Q(receiver=receiver)) | (Q(sender=receiver) & Q(receiver=sender))
         )
+        sender.friends.remove(receiver.user)
+        receiver.friends.remove(sender.user)
         rel.delete()
         return redirect(request.META.get('HTTP_REFERER'))
-    return redirect('post:profiles')
+    return redirect('post:home')

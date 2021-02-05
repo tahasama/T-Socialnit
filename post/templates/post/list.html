@@ -18,26 +18,49 @@
 
 {% if user.is_authenticated %}
 
-<h3>Welcome {{user.username}} </h3>
+<h3 class="p-2">Welcome {{user.username}} </h3>
+<div class="row" >
+
+  <div class="col-md-3">
+    <ul class="nav flex-column" >
+      </li>
+            
+
+         
+      <li><a class="dropdown-item " id="hovhov" href="{% url 'post:wall' user.id%}"> <i class="fas fa-sign-out-alt"></i>my
+          wall</a></li>
+          <br>
+            <li><a class="dropdown-item" id="hovhov" href="{% url 'post:edit' %}"><b>{{ request.user.username }}</b>'s info </a></li>
+            <br>
+            <li><a class="dropdown-item " id="hovhov" href="{% url 'password_change' %}"> <i class="fas fa-exchange-alt"></i> Change Password</a></li>
+            <br>
+            <li><a class="dropdown-item " id="hovhov" href="{% url 'logout' %}"> <i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+  
+          </ul>
+    
+  </div>
 
 
+<div class="col-md-6 ">
+<div class="form-group">
+  <div class="input-group text-center nav-fill w-100">
 
+      <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?text">
+        <button type="button" class="btn btn-primary btn-lg">say something </button>
+      </a>
 
-<div class="p-4">
-  <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?text">
-    <button type="button" class="btn btn-primary btn-lg">say something <i class="fas fa-sign-in-alt"></i></button>
-  </a>
+      <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?image">
+        <button type="button" class="btn btn-primary btn-lg">post an image <i class="fas fa-image"></i></button>
+      </a>
+
+      <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?video">
+        <button type="button" class="btn btn-primary btn-lg">post a video <i class="fas fa-video"></i></i></button>
+      </a>
+ 
+  </div>
 </div>
-<div class="p-4">
-  <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?image">
-    <button type="button" class="btn btn-primary btn-lg">add image<i class="fas fa-sign-in-alt"></i></button>
-  </a>
-</div>
-<div class="p-4">
-  <a class="nav-link text-dark  font-weight-bold px-3" href="{% url 'post:create_post' %}?video">
-    <button type="button" class="btn btn-primary btn-lg">add vid <i class="fas fa-sign-in-alt"></i></button>
-  </a>
-</div>
+
+
 
 {% endif %}
 
@@ -48,26 +71,24 @@
     <div class="col-9 mx-auto col-md-6 col-lg-12">
       <div class="card mb-2" style="border-color: transparent; background: #dfdff1">
 
-        <div class="p-4">
+        <div class="p-2">
           <a class="text-decoration-none text-dark" href="{% url 'post:wall' post.user.id %}">
-            <h3 class="card-img-top ">{{ post.user }}</h3>
+          </a>
+        </div>
+        <div class="p-1">
+          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
+            <h6 class="card-img-top ">&nbsp;&nbsp; {{ post.created }}</h6>
           </a>
         </div>
 
-        {% if request.post.user not in post.users_like.all %}
-          <a href="{{get_absolute_url}}?like">Like </a>
+        {% if request.user not in post.users_like.all %}
+          <a href="{% url 'post:post_detail' post.id %}?like"> <i class="fas fa-thumbs-up text-danger p-1"> Like </i></a>
         {% else %}
-          <a href="{{get_absolute_url}}?unlike">Unlike</a>
+          <a href="{{post.get_absolute_url}}?unlike"> <i class="fas fa-thumbs-down text-secondary p-1"> Unlike</i></a>
         {% endif %}
-        {% if users_like.count > 1 %}
-          {%for liker in users_like|slice:'2' %}
-            {{liker.username}}
-            {% if not forloop.last %},{% endif %}
-          {%endfor%}
-          {% if likes.count > 1 %}
-            ,and {{likes.count|add:-1}} other{{likes.count|add:-1|pluralize}} likes this post
-          {% endif %}
-        {% endif %}
+        
+          
+    
 
         {%if post.text%}
         <div class="p-4">
@@ -101,39 +122,129 @@
           </a>
         </div>
         {% endif %}
-        <div class="p-4">
-          <a class="text-decoration-none text-dark" href="{{post.get_absolute_url}}">
-            <h3 class="card-img-top ">{{ post.created }}</h3>
-          </a>
-        </div>
+        {%if post.user == request.user%}
+        {%if post.text and not post.video and not post.image%}
+        <h6 id="comment"><a  href="{%url 'post:update_post' post.id%}?text" class="text-decoration-none  "><i class="fas fa-edit pt-2"></i> update description</a>&nbsp;&nbsp;
+          {%endif%}
+          {%if post.image%}
+        <h6 id="comment"><a  href="{%url 'post:update_post' post.id%}?image" class="text-decoration-none  "><i class="fas fa-edit pt-2"></i> update</a>&nbsp;&nbsp;
+          {%endif%}
+          {%if post.video%}
+        <h6 id="comment"><a  href="{%url 'post:update_post' post.id%}?video" class="text-decoration-none  "><i class="fas fa-edit pt-2"></i> update</a>&nbsp;&nbsp;
+          {%endif%}
+          {%if post.url%}
+        <h6 id="comment"><a  href="{%url 'post:update_post' post.id%}?url" class="text-decoration-none  "><i class="fas fa-edit pt-2"></i> update</a>&nbsp;&nbsp;
+          {%endif%}
+          <a href="{%url 'post:delete_post' post.id%}" class="text-decoration-none"><i class="fas fa-trash-alt"></i> delete </a></h6>
+        {% endif %}
+        <br>
 
-        <h6>&nbsp; Comments: {{post.comments.count}}</h6>
-        <a href="{{post.get_absolute_url}}"><h6>add a comment</h6></a>
+        <h6>&nbsp; Comments: {{post.comments.count}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Likes:{{post.users_like.count}}</h6>
+        <a href="{{post.get_absolute_url}}" class="text-decoration-none"><h6>&nbsp;&nbsp; add a comment</h6></a>
         {%for c in post.comments.all|slice:'2' %}
 
         <h6 class="font-weight-bold mb-0 text-secondary" style="margin-left: 20px;" >
                           
-          <p class="date">
-           <i> {{ c.created }} by <u>{{ c.commenter }}</u></i>
-          </p>
-        </h6>
-        <h6 id="comment"><a  href="{{c.get_absolute_url}}/update_comment " class="text-decoration-none  "><i class="fas fa-edit pt-2"></i> </a>&nbsp;&nbsp;
-          <a href="{{c.get_absolute_url}}/delete_comment" class="text-decoration-none"><i class="fas fa-trash-alt"></i> </a></h6>
-
+          
+      
         <h5 class="text-dark  mb-0 pt-1 mb-2" style="margin-left: 20px;">
           <i> <span class="mr-1"></span> {{ c.content }}</i></h5>
+          <h6 class="date text-secondary">
+            <i>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ c.created }} by <u>{{ c.commenter }}</u></i>
+           </h6>
        
         {% endfor %}        
-        <a href="{{post.get_absolute_url}}"><h6>view all comment</h6></a>
-        {%if post.user == request.user%}
-        <h6><a href="{{comment.get_absolute_url}}" class="text-decoration-none">&nbsp;&nbsp;<i class="fas fa-edit"></i>update post</a>&nbsp;&nbsp;
-          <a href="{{comment.get_absolute_url}}" class="text-decoration-none"><i class="fas fa-trash-alt"></i>delete post</a>
-        </h6>
-        {% endif %}
+        <a href="{{post.get_absolute_url}}" class="text-decoration-none"><h6>&nbsp;&nbsp; view comments</h6></a>
+       
       </div>
     </div>
   </div>
 </div>
+
 {% endfor %}
+</div>
+
+
+
+
+
+<div class="col-md-3 ">
+  <div class="container">
+  <div class="">
+      <div class="">
+        
+          {%if profile.get_count_friends > 0 %}
+            <u>You have {{profile.get_count_friends}} friend{{profile.get_count_friends|pluralize}}:</u>  
+              <br>
+              {%for friend in profiles%}
+              <a class="text-primary" href="{% url 'post:wall' friend.id %}"><b><i>{{friend}}</i></b> </a>
+                  <form action="{% url 'post:unfriend' %}" method="post">
+                    {%csrf_token%}
+                    <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
+                        <button type="submit" class="btn text-danger" and style="background-color:transparent"><b>Unfriend?</b></button>                        
+                </form>
+                  <br>
+              {%endfor%}
+              {%for profile in all_profiles%}
+                    {% if request.user in profile.friends.all %}
+                    
+                    {%endif%}
+                  
+                  {%endfor%}
+          {%endif%}
+      </div>
+  </div>
+
+        {%for profile in all_profiles%}
+        {% if profile.user in rel_sender and request.user not in profile.friends.all %}
+        
+       <u>{{profile.user}} sent you an invitation :</u> 
+
+        <form action="{% url 'post:accept' %}" method="post">
+            {%csrf_token%}
+            <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
+            
+                <button type="submit" class="btn text-success" and style="background-color:transparent"><b>accept</b> </button>                        
+        </form>
+        
+        <form action="{% url 'post:reject' %}" method="post">
+            {%csrf_token%}
+            <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
+                <button type="submit" class="btn text-secondary" and style="background-color:transparent"><b>reject</b> </button>                        
+        </form>
+        {%endif%}
+       
+        {%endfor%}
+        {%for profile in all_profiles%}
+        {% if profile.user in rel_receiver and request.user not in profile.friends.all %}
+               <p><b>waiting for <i>{{profile.user}}</i> 's approuval</b> </p> 
+                <form action="{% url 'post:cancel' %}" method="post">
+                    {%csrf_token%}
+                    <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
+                        <button type="submit" class="btn text-danger" and style="background-color:transparent"><b>cancel invitation to {{profile.user}}? </b> </button>                        
+                </form>
+                {%endif%}
+          {%endfor%}
+          
+              {%for profile in all_profiles%}
+
+                  {% if profile.user not in rel_receiver and profile.user not in rel_sender and profile.user not in profile.friends.all%}
+                  <form action="{% url 'post:send_invitation' %}" method="post">
+                      {%csrf_token%}
+                      <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
+                          <button type="submit" class="btn" and style="background-color:transparent">
+                            <i class="fas fa-plus"> add {{profile.user}}</i>
+                          </button>                        
+                  </form>
+                  {%endif%}
+                  {%endfor%}
+
+      </div>
+  </div>
+</div>
+
+
+</div>
+</div>
 
 {% endblock %}

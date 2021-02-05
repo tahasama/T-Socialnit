@@ -1,0 +1,32 @@
+{% extends "post/base.html" %}
+
+
+{% block title %}Search{% endblock %}
+{% block content %}
+
+<div class="container p-4" >
+<div class="jumbotron">
+<h4>Research result : 
+  
+</h4>
+
+{% for u in user %}
+<div class="p-4">
+ <ol>
+  <a class="text-primary" href="{% url 'post:wall' u.id %}">
+    <h3 class="card-img-top ">{{  u.username }}</h3>
+  </a>
+</ol>
+</div>
+    {% empty %}
+    <p>There are no results for your query.</p>
+    {% endfor %}
+<br>
+
+      </div>
+    </div>
+
+   
+
+    {% endblock %}
+

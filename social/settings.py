@@ -138,7 +138,7 @@ AUTHENTICATION_BACKENDS = [
     'post.authentication.EmailAuthBackend',
 ]
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = ('post:home')
 LOGOUT_REDIRECT_URL = '/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

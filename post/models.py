@@ -68,7 +68,7 @@ class Comment(models.Model):
         ordering = ('-created',)
     
     def __str__(self):
-        return self.commenter
+        return str(self.commenter)
 
     def get_absolute_url(self):
         return reverse('post:comment',args=[self.post.id, self.id])
