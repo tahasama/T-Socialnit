@@ -1,0 +1,33 @@
+
+
+{% extends 'post/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}
+CONTACT
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    
+    <div class="row justify-content-center mt-3">
+        <div class="col-12 col-md-8 col-lg-6 pb-4">
+            <h2 class="text-center p-3"> Welcome to the Socialnit , login or register with us and start sharing with your friends ! </h2>
+            <br>
+            <button type="button" class="btn btn-primary btn-lg text-center" style="margin-left: 180px;">
+                <a href="{% url 'login' %}" class=" text-light" >
+                    <h3>Get started</h3>
+                </a>
+            </button> 
+        </div>
+    </div>
+
+        
+
+        
+</div>
+
+
+
+{% endblock %}

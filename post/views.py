@@ -28,6 +28,8 @@ from django.contrib import messages
 from django.db.models import Q
 
 
+def welcome(request):
+    return render(request, 'post/welcome.html')
 
 @login_required
 def create_post(request):
@@ -192,9 +194,9 @@ def edit(request):
 
 
 def search(request):
-    user = User.objects.filter(username__contains=request.GET['name'])
+    result = User.objects.filter(username__contains=request.GET['name'])
     print
-    return render(request, 'post/search.html', {'user': user})
+    return render(request, 'post/search.html', {'result': result})
 
     
 @login_required

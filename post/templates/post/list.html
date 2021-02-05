@@ -7,14 +7,6 @@
 
 {% block content %}
 
-{% if messages %}
-
-{% for message in messages %}
-<div class="alert alert-info text-center" role="alert">
-  <li>{{ message }}</li>
-</div>
-{% endfor %}
-{% endif %}
 
 {% if user.is_authenticated %}
 
@@ -62,7 +54,7 @@
 
 
 
-{% endif %}
+
 
 
 {% for post in posts %}
@@ -244,7 +236,16 @@
 </div>
 
 
-</div>
-</div>
-
+{% else %}
+<div class="text-center">
+  <h3>You need to be logged-in to access this page </h3>
+  <br>
+  <button type="button" class="btn btn-primary btn-lg text-center" >
+    
+    <a href="{% url 'login' %}" class=" text-light" >
+        <h4>Login</h4>
+    </a>
+  </button> 
+  </div>
+{% endif %}
 {% endblock %}

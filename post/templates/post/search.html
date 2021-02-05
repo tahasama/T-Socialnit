@@ -4,13 +4,18 @@
 {% block title %}Search{% endblock %}
 {% block content %}
 
+
+
 <div class="container p-4" >
 <div class="jumbotron">
+
+  {% if user.is_authenticated %}
+
 <h4>Research result : 
   
 </h4>
 
-{% for u in user %}
+{% for u in result %}
 <div class="p-4">
  <ol>
   <a class="text-primary" href="{% url 'post:wall' u.id %}">
@@ -22,6 +27,18 @@
     <p>There are no results for your query.</p>
     {% endfor %}
 <br>
+{% else %}
+<div class="text-center">
+<h3>You need to be logged-in to do a search </h3>
+<br>
+<button type="button" class="btn btn-primary btn-lg text-center" >
+  
+  <a href="{% url 'login' %}" class=" text-light" >
+      <h4>Login</h4>
+  </a>
+</button> 
+</div>
+{% endif %}
 
       </div>
     </div>
