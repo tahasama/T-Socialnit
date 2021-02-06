@@ -164,7 +164,17 @@
   <div class="container">
   <div class="">
       <div class="">
-        
+        {% if recommended_products %}
+          <div class="recommendations">
+            <h3>People who bought this also bought" </h3>
+            {% for p in recommended_products %}
+            <div class="item">
+
+              <p><a href="{{ p.get_absolute_url }}">{{ p.name }}</a></p>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
           {%if profile.get_count_friends > 0 %}
             <u>You have {{profile.get_count_friends}} friend{{profile.get_count_friends|pluralize}}:</u>  
               <br>
@@ -172,7 +182,7 @@
               <a class="text-primary" href="{% url 'post:wall' friend.id %}"><b><i>{{friend}}</i></b> </a>
                   <form action="{% url 'post:unfriend' %}" method="post">
                     {%csrf_token%}
-                    <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
+                    <input type="hidden" name="profile_id" id="" value="{{friend.id}}" >
                         <button type="submit" class="btn text-danger" and style="background-color:transparent"><b>Unfriend?</b></button>                        
                 </form>
                   <br>
@@ -236,16 +246,5 @@
 </div>
 
 
-{% else %}
-<div class="text-center">
-  <h3>You need to be logged-in to access this page </h3>
-  <br>
-  <button type="button" class="btn btn-primary btn-lg text-center" >
-    
-    <a href="{% url 'login' %}" class=" text-light" >
-        <h4>Login</h4>
-    </a>
-  </button> 
-  </div>
 {% endif %}
 {% endblock %}

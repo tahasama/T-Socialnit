@@ -1,4 +1,4 @@
-from django.dispatch.dispatcher import receiver
+#from django.dispatch.dispatcher import receiver
 from django.shortcuts import redirect, render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 
@@ -21,8 +21,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 # from django.contrib import messages
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+#from django.http import JsonResponse
+#from django.views.decorators.http import require_POST
 from django.contrib import messages
 
 from django.db.models import Q
@@ -102,7 +102,6 @@ def post_list(request, user_id=None):
         rel_sender.append(s.sender.user)
    
     nb_invitation = len(rel_sender)
-
     # print(nb_invitation)
     # print(rel_sender)
     # print(rel_receiver)
@@ -190,12 +189,11 @@ def edit(request):
         return redirect('home')
     else:
         form = UserEditForm(instance=request.user)
-    return render(request,'bloggers/edit.html',{'form': form})
+    return render(request,'users/edit.html',{'form': form})
 
 
 def search(request):
     result = User.objects.filter(username__contains=request.GET['name'])
-    print
     return render(request, 'post/search.html', {'result': result})
 
     
@@ -250,13 +248,15 @@ def unfriend(request):
         id = request.POST.get('profile_id')
         user = request.user
         sender = Profile.objects.get(user=user)
+        print(sender)
         receiver = Profile.objects.get(id=id)
-
-        rel = Relationship.objects.get(
-            (Q(sender=sender) & Q(receiver=receiver)) | (Q(sender=receiver) & Q(receiver=sender))
-        )
+        print(receiver)
+        rel = Relationship.objects.get((Q(sender=sender) & Q(receiver=receiver)) | (Q(sender=receiver) & Q(receiver=sender)))
+        #rel = get_object_or_404(Relationship,sender=receiver,receiver=sender)
+        print(rel)
         sender.friends.remove(receiver.user)
         receiver.friends.remove(sender.user)
         rel.delete()
+        
         return redirect(request.META.get('HTTP_REFERER'))
     return redirect('post:home')

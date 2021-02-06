@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'widget_tweaks',
     'embed_video', 
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
