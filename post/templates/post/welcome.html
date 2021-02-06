@@ -16,7 +16,11 @@ CONTACT
             <h2 class="text-center p-3"> Welcome to the Socialnit , login or register with us and start sharing with your friends ! </h2>
             <br>
             <button type="button" class="btn btn-primary btn-lg text-center" style="margin-left: 180px;">
+                {% if user.is_authenticated %}
+                <a href="{% url 'post:home' %}" class=" text-light" >
+                {% else %}
                 <a href="{% url 'login' %}" class=" text-light" >
+                {% endif %}
                     <h3>Get started</h3>
                 </a>
             </button> 
