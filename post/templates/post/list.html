@@ -29,6 +29,22 @@
             <li><a class="dropdown-item " id="hovhov" href="{% url 'logout' %}"> <i class="fas fa-sign-out-alt"></i> Log Out</a></li>
   
           </ul>
+          <br>
+          <div class="container">
+            <p class="pl-2 " id="hovhov" href=""> <i class="fas fa-list"></i> List of all users :</p>
+            {%for profile in all_profiles%}
+            {% if profile.user not in rel_receiver and profile.user not in rel_sender and profile.user not in profile.friends.all%}
+          <form action="{% url 'post:send_invitation' %}" method="post">
+              {%csrf_token%}
+              <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
+                  <button type="submit" class="btn" and style="background-color:transparent">
+                    <i class="fas fa-plus"> add {{profile.user}}</i>
+                  </button>                        
+          </form>
+          {%endif%}
+          {%endfor%}
+          </div>
+          
     
   </div>
 
@@ -164,17 +180,22 @@
   <div class="container">
   <div class="">
       <div class="">
-        {% if recommended_products %}
-          <div class="recommendations">
-            <h3>People who bought this also bought" </h3>
-            {% for p in recommended_products %}
-            <div class="item">
-
-              <p><a href="{{ p.get_absolute_url }}">{{ p.name }}</a></p>
-            </div>
-            {% endfor %}
-          </div>
-          {% endif %}
+      
+        
+        {%for p in dup|slice:'3' %} 
+        {%if p.user not in profiles and p.user not in rel_receiver and p.user not in rel_sender %}
+        <p class="p-0"><u> you may know : </u></p> 
+        <form action="{% url 'post:send_invitation' %}" method="post" class="p-0">
+          {%csrf_token%}
+          <input type="hidden" name="profile_id" id="" value="{{p.id}}" >
+              <button type="submit" class="btn" and style="background-color:transparent">
+                <i class="fas fa-plus"> add {{p}}</i>
+              </button>                        
+        </form>
+        {%endif%} 
+        {% endfor %} 
+    
+        <br>
           {%if profile.get_count_friends > 0 %}
             <u>You have {{profile.get_count_friends}} friend{{profile.get_count_friends|pluralize}}:</u>  
               <br>
@@ -187,12 +208,6 @@
                 </form>
                   <br>
               {%endfor%}
-              {%for profile in all_profiles%}
-                    {% if request.user in profile.friends.all %}
-                    
-                    {%endif%}
-                  
-                  {%endfor%}
           {%endif%}
       </div>
   </div>
@@ -228,18 +243,7 @@
                 {%endif%}
           {%endfor%}
           
-              {%for profile in all_profiles%}
-
-                  {% if profile.user not in rel_receiver and profile.user not in rel_sender and profile.user not in profile.friends.all%}
-                  <form action="{% url 'post:send_invitation' %}" method="post">
-                      {%csrf_token%}
-                      <input type="hidden" name="profile_id" id="" value="{{profile.id}}" >
-                          <button type="submit" class="btn" and style="background-color:transparent">
-                            <i class="fas fa-plus"> add {{profile.user}}</i>
-                          </button>                        
-                  </form>
-                  {%endif%}
-                  {%endfor%}
+             
 
       </div>
   </div>

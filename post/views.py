@@ -91,6 +91,23 @@ def post_list(request, user_id=None):
    
     all_profiles = Profile.objects.all().exclude(user=profile.user)
     profiles = profile.get_all_friends()
+
+    vv = [friend for friend in profiles]
+    print(vv)
+
+    ll = [h.friends.all().exclude(user=profile.user) for h in vv]
+    print(ll)
+
+    nn = [item for sublist in ll for item in sublist]
+    print(nn)
+    
+    dup = {i:nn.count(i) for i in nn}
+    print(dup)
+    # dup = [nn.count(i) for i in nn]
+    # print(dup)
+
+
+
     rel_r = Relationship.objects.filter(sender=profile)
     rel_s = Relationship.objects.filter(receiver=profile)
     rel_receiver = []
@@ -108,7 +125,7 @@ def post_list(request, user_id=None):
     # print(rel_s)
     # print(rel_r)
     return render(request,'post/list.html',{
-        'profile':profile,'profiles':profiles,'all_profiles':all_profiles,'posts': posts,
+        'profile':profile,'profiles':profiles,'all_profiles':all_profiles,'posts': posts,'dup':dup,
         'rel_sender':rel_sender,'rel_receiver':rel_receiver,'nb_invitation':nb_invitation})
 
 
